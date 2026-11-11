@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mada Connect</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --forest: #1B4332;
+    --forest-light: #2F9E6E;
+    --terra: #E07A3E;
+    --sand: #F8F4EC;
+    --ink: #231F18;
+    --ink-light: #6B655A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--sand);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: linear-gradient(135deg, var(--forest) 0%, #16302A 100%);
+    color: #fff;
+    padding: 40px 24px 48px;
+    text-align: center;
+  }
+  header .logo { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  header p { margin: 8px 0 0; opacity: 0.85; }
+  main {
+    width: calc(100% - 32px);
+    max-width: 440px;
+    margin: -24px auto 40px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  h1 { font-size: 20px; color: var(--forest); margin: 0 0 8px; }
+  p.info { color: var(--ink-light); line-height: 1.55; margin: 0 0 22px; }
+  .btn {
+    display: block;
+    padding: 15px 18px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    margin-bottom: 12px;
+  }
+  .btn-principal { background: var(--forest); color: #fff; }
+  .btn-secondaire { border: 2px solid #E3DAC6; color: var(--forest); }
+  .petit { font-size: 13px; color: var(--ink-light); margin-top: 8px; }
+  footer { margin-top: auto; text-align: center; color: var(--ink-light); font-size: 13px; padding: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Mada Connect</div>
+  <p>Hôtels, restaurants, pharmacies… à Madagascar</p>
+</header>
+<main>
+  <h1 id="titre">Ouverture de la fiche…</h1>
+  <p class="info" id="texte">
+    Si l'application Mada Connect est installée, la fiche de l'établissement
+    va s'ouvrir. Sinon, téléchargez-la gratuitement.
+  </p>
+  <a class="btn btn-principal" id="ouvrir" href="#">Ouvrir dans l'application</a>
+  <a class="btn btn-secondaire" id="play"
+     href="https://play.google.com/store/apps/details?id=com.madaconnect.mada_connect">
+    Télécharger sur Google Play
+  </a>
+  <p class="petit">Application gratuite · Android</p>
+</main>
+<footer>© 2026 Mada Connect — Madagascar</footer>
+
+<script>
+  (function () {
+    var PAQUET = 'com.madaconnect.mada_connect';
+    var PLAY = 'https://play.google.com/store/apps/details?id=' + PAQUET;
+    var id = new URLSearchParams(window.location.search).get('id') || '';
+    // Un identifiant de fiche valide (uuid) et rien d'autre
+    var valide = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    var android = /android/i.test(navigator.userAgent);
+    var bouton = document.getElementById('ouvrir');
+
+    if (!valide) {
+      document.getElementById('titre').textContent = 'Découvrez Mada Connect';
+      document.getElementById('texte').textContent =
+        'Trouvez les établissements autour de vous, consultez leurs photos, prix et avis.';
+      bouton.style.display = 'none';
+      return;
+    }
+
+    // Android : ouvre l'app sur la fiche ; si elle n'est pas installée,
+    // Chrome bascule tout seul vers Google Play.
+    var lienApp = android
+      ? 'intent://fiche/' + id + '#Intent;scheme=madaconnect;package=' + PAQUET +
+        ';S.browser_fallback_url=' + encodeURIComponent(PLAY) + ';end'
+      : 'madaconnect://fiche/' + id;
+
+    bouton.href = lienApp;
+
+    if (android) {
+      // Tentative automatique ; le bouton reste là si le navigateur
+      // bloque l'ouverture sans appui.
+      setTimeout(function () { window.location.href = lienApp; }, 300);
+    } else {
+      bouton.style.display = 'none';
+      document.getElementById('titre').textContent = 'Mada Connect';
+      document.getElementById('texte').textContent =
+        "L'application Mada Connect est disponible sur Android.";
+    }
+  })();
+</script>
+</body>
+</html>
